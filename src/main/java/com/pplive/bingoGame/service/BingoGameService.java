@@ -1,6 +1,5 @@
 package com.pplive.bingoGame.service;
 
-import com.pplive.bingoGame.dto.BetDetails;
 import com.pplive.bingoGame.dto.BingoGame;
 import com.pplive.bingoGame.repository.BingoDB;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,13 +15,6 @@ public class BingoGameService {
 
     @Autowired
     BingoGame bingoGame;
-
-    @Autowired
-    BingoDB bingoDB;
-
-    @Autowired
-    UserService userService;
-    
 
     HashMap<String, Integer> betMap = new HashMap<String, Integer>(){{
         put("r1", 2101);
@@ -267,15 +259,6 @@ public class BingoGameService {
         System.out.println("Numbers Left to Win: " + bingoGame.getNumberLeftToWin());
     }
 
-
-    public boolean isBetAlreadyPlaced(int userId, String gameId) {
-        try {
-            BetDetails betDetails = bingoDB.findUserIdBetAmountByGameId(gameId);
-            return betDetails.getUserId() == userId;
-        } catch (Exception e) {
-            return false;
-        }
-    }
 
     public int calculatePayout(String betCode, int betAmount) {
         if (betCode.equals("r1") || betCode.equals("r2") || betCode.equals("r3")) {

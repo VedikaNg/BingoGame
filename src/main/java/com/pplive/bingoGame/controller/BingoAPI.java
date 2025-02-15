@@ -43,7 +43,7 @@ public class BingoAPI{
     @PostMapping("/bet")
     public ResponseEntity<BetResponse> placeBet(@RequestBody BetRequest requestBody) {
         BetResponse response = new BetResponse() ;
-        if(bingoGameService.isBetAlreadyPlaced(requestBody.getUserId(), requestBody.getGameId()) && bingoGame.getBetsOpen(Instant.now()) && (bingoGame.getGameId().equalsIgnoreCase(requestBody.getGameId()))){
+        if(!userService.isBetAlreadyPlaced(requestBody.getUserId(), requestBody.getGameId()) && bingoGame.getBetsOpen(Instant.now()) && (bingoGame.getGameId().equalsIgnoreCase(requestBody.getGameId()))){
             if(userService.checkBalance(requestBody.getBetAmount(),requestBody.getUserId(),requestBody.getBetCode(), requestBody.getGameId())){
                 response.setBetValid(true);
                 response.setBetId(bingoGameService.generateBetId(requestBody.getUserId(),requestBody.getBetCode()));

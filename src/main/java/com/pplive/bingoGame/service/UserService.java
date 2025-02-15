@@ -1,5 +1,6 @@
 package com.pplive.bingoGame.service;
 
+import com.pplive.bingoGame.dto.BetDetails;
 import com.pplive.bingoGame.repository.BingoDB;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -27,5 +28,13 @@ public class UserService {
        return bingoDB.findBetCodeByUserIdGameId(userId, gameId);
     }
 
+    public boolean isBetAlreadyPlaced(int userId, String gameId) {
+        try {
+            BetDetails betDetails = bingoDB.findUserIdBetAmountByGameId(gameId);
+            return betDetails.getUserId() == userId;
+        } catch (Exception e) {
+            return false;
+        }
+    }
 
 }
