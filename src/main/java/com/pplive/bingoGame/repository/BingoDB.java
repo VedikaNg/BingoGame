@@ -31,10 +31,10 @@ public class BingoDB {
         }
     }
 
-    public BetDetails findUserIdBetAmountByGameId(String gameId){
-        String query = "SELECT user_id, bet_amount FROM bet_details WHERE game_id = ? ";
+    public BetDetails findUserIdBetAmountBetCodeByGameId(String gameId){
+        String query = "SELECT user_id, bet_amount, bet_code FROM bet_details WHERE game_id = ? ";
         try {
-            RowMapper<BetDetails> rowMapper = (resultSet, rowNum) -> new BetDetails(resultSet.getInt("user_id"), resultSet.getInt("bet_amount"));
+            RowMapper<BetDetails> rowMapper = (resultSet, rowNum) -> new BetDetails(resultSet.getInt("user_id"), resultSet.getInt("bet_amount"),resultSet.getInt("bet_code"));
             return jdbcTemplate.queryForObject(query, rowMapper, gameId);
         } catch (Exception e) {
             throw new RuntimeException("User not found or error fetching balance", e);
@@ -56,15 +56,6 @@ public class BingoDB {
         jdbcTemplate.update(query, gameId, "BINGO");
     }
 
-    public int findBetCodeByUserIdGameId(int userId, String gameId){
-        String query = "SELECT bet_code FROM bet_details WHERE game_id = ? AND user_id = ?";
-        try {
-            RowMapper<Integer> rowMapper = (resultSet, rowNum) -> resultSet.getInt("bet_code");
-            return jdbcTemplate.queryForObject(query, rowMapper, gameId, userId);
-        } catch (Exception e) {
-            throw new RuntimeException("User has not placed the bet", e);
-        }
-    }
 
 
 }

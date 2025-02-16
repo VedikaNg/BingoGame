@@ -5,7 +5,6 @@ import com.pplive.bingoGame.repository.BingoDB;
 import com.pplive.bingoGame.service.BingoGameService;
 import com.pplive.bingoGame.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -62,12 +61,18 @@ public class BingoAPI{
 
     @PostMapping("/bingo/result")
     public ResponseEntity<ResultResponse> result(@RequestBody ResultRequest resultRequest){
-        bingoGameService.checkNumberInTicket(resultRequest.getRandomNumber(), bingoGame.getTicket());
+        userService.checkNumberInTicket(resultRequest.getRandomNumber(), bingoGame.getTicket());
         ResultResponse response = new ResultResponse();
         bingoGame.getNumberSequence().add(resultRequest.getRandomNumber());
         response.setNumberSequence(bingoGame.getNumberSequence());
         response.setGameId(resultRequest.getGameId());
-        response.setNumberLeftToWin(bingoGame.getNumberLeftToWin());
+        System.out.println("After calculation");
+        System.out.println("Before setting");
+        System.out.println(userService.numberLeft());
+        response.setNumberLeftToWin(userService.numberLeft());
+//        System.out.println("After setting");
+//        System.out.println(bingoGame.getNumberLeftToWin());
+        response.setPayout(userService.payout());
         return new ResponseEntity<>(response, HttpStatus.ACCEPTED);
     }
 
@@ -75,7 +80,7 @@ public class BingoAPI{
     public void cancelGame(@PathVariable String gameId){
     System.out.println(bingoGameService.compareGameId(gameId, bingoGame.getGameId(), bingoGame.getGameStatus()));
         if(bingoGameService.compareGameId(gameId, bingoGame.getGameId(), bingoGame.getGameStatus())){
-            BetDetails betDetails = bingoDB.findUserIdBetAmountByGameId(gameId);
+            BetDetails betDetails = bingoDB.findUserIdBetAmountBetCodeByGameId(gameId);
             int balance = bingoDB.findBalanceByUserId(betDetails.getUserId());
             System.out.println(balance);
             bingoDB.updateBalanceInDB((balance+betDetails.getBetAmount()), betDetails.getUserId());
