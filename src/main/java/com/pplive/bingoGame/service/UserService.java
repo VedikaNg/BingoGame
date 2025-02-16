@@ -239,6 +239,8 @@ public class UserService {
     }
 
     public boolean checkIfUserWins(int betCode, List<Integer> ticket) {
+        //check for winning row/ column betcode
+        // check for the betPlaced betcode is same as the winning betCode
         boolean hasWon = false;
         if (betCode>=2101 && betCode<=2103) {
             int row = betCode-2101;

@@ -70,8 +70,6 @@ public class BingoAPI{
         System.out.println("Before setting");
         System.out.println(userService.numberLeft());
         response.setNumberLeftToWin(userService.numberLeft());
-//        System.out.println("After setting");
-//        System.out.println(bingoGame.getNumberLeftToWin());
         response.setPayout(userService.payout());
         return new ResponseEntity<>(response, HttpStatus.ACCEPTED);
     }

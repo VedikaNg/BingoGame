@@ -1,5 +1,6 @@
 package com.pplive.bingoGame.dto;
 
+
 public class BetDetails {
     private int userId;
     private int betAmount;
