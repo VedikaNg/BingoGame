@@ -63,6 +63,10 @@ public class BingoGameService {
         bingoGame.setGameStartTime(Instant.now());
         bingoGame.setTicket(generateTicket());
         bingoGame.setNumberSequence(new ArrayList<>());
+        bingoGame.setNumberLeftInRow(Arrays.asList(3,3,3));
+        bingoGame.setNumberLeftInColumn(Arrays.asList(3,3,3));
+        bingoGame.setPayout(0);
+        bingoGame.setNumberLeftToWin(new HashSet<>());
         return bingoGame;
     }
 

@@ -1,9 +1,11 @@
 package com.pplive.bingoGame.service;
 
+import com.pplive.bingoGame.BingoGameApplication;
 import com.pplive.bingoGame.dto.BetDetails;
 import com.pplive.bingoGame.dto.BingoGame;
 import com.pplive.bingoGame.repository.BingoDB;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -17,6 +19,7 @@ public class UserService {
     BingoDB bingoDB;
 
     @Autowired
+    @Lazy
     BingoGame bingoGame;
 
 
@@ -52,8 +55,8 @@ public class UserService {
         }
     }
 
-    public void checkNumberInTicket(int randomNumber, List<Integer> ticket, String gameId) {
-        bingoGame.setGameId(gameId);
+    public boolean checkNumberInTicket(int randomNumber, List<Integer> ticket, BingoGame bingoGame) {
+        bingoGame.setGameId(bingoGame.getGameId());
         if (randomNumber <= 10) {
             for (int i = 0; i <= 2; i++) {
                 if (ticket.get(i) == randomNumber) {
@@ -116,7 +119,7 @@ public class UserService {
                             bingoGame.setPayout(calculatePayout(findBetCode(bingoGame.getGameId()), findBetAmount(bingoGame.getGameId())));
                             System.out.println("Payout: "+bingoGame.getPayout());
                         }
-                        bingoGame.setGameStatus(false);
+                        return true;
                     }
                     break;
                 }
@@ -183,7 +186,7 @@ public class UserService {
                             bingoGame.setPayout(calculatePayout(findBetCode(bingoGame.getGameId()), findBetAmount(bingoGame.getGameId())));
                             System.out.println("Payout: "+bingoGame.getPayout());
                         }
-                        bingoGame.setGameStatus(false);
+                        return true;
                     }
                     break;
                 }
@@ -251,7 +254,7 @@ public class UserService {
                             bingoGame.setPayout(calculatePayout(findBetCode(bingoGame.getGameId()), findBetAmount(bingoGame.getGameId())));
                             System.out.println("Payout: "+bingoGame.getPayout());
                         }
-                        bingoGame.setGameStatus(false);
+                        return true;
                     }
                     break;
                 }
@@ -262,6 +265,7 @@ public class UserService {
         System.out.println("Columns Left: " + bingoGame.getNumberLeftInColumn());
         System.out.println("Rows Left: " + bingoGame.getNumberLeftInRow());
         System.out.println("Numbers Left to Win: " + bingoGame.getNumberLeftToWin());
+        return false;
     }
 
     public int calculatePayout(int betCode, int betAmount) {
@@ -280,12 +284,5 @@ public class UserService {
         return false;
     }
 
-    public Set<Integer> numberLeft(){
-        return  bingoGame.getNumberLeftToWin();
-    }
-
-    public int payout(){
-        return bingoGame.getPayout();
-    }
 
 }

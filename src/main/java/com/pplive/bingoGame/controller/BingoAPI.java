@@ -61,16 +61,19 @@ public class BingoAPI{
 
     @PostMapping("/bingo/result")
     public ResponseEntity<ResultResponse> result(@RequestBody ResultRequest resultRequest){
-        userService.checkNumberInTicket(resultRequest.getRandomNumber(), bingoGame.getTicket(), bingoGame.getGameId());
+        Boolean gameEnds = userService.checkNumberInTicket(resultRequest.getRandomNumber(), bingoGame.getTicket(), bingoGame);
+        if(gameEnds){
+            bingoGame.setGameStatus(false);
+        }
         ResultResponse response = new ResultResponse();
         bingoGame.getNumberSequence().add(resultRequest.getRandomNumber());
         response.setNumberSequence(bingoGame.getNumberSequence());
         response.setGameId(resultRequest.getGameId());
         System.out.println("After calculation");
         System.out.println("Before setting");
-        System.out.println(userService.numberLeft());
-        response.setNumberLeftToWin(userService.numberLeft());
-        response.setPayout(userService.payout());
+        System.out.println(bingoGame.getNumberLeftToWin());
+        response.setNumberLeftToWin(bingoGame.getNumberLeftToWin());
+        response.setPayout(bingoGame.getPayout());
         return new ResponseEntity<>(response, HttpStatus.ACCEPTED);
     }
 
