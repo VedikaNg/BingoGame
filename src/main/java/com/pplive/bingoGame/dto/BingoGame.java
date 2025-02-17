@@ -18,9 +18,14 @@ public class BingoGame {
     private List<Integer> numberLeftInColumn=Arrays.asList(3,3,3);
     private Set<Integer> numberLeftToWin = new HashSet<>();
     private int payout;
+    private int winningBetCode;
 
     public int getPayout() {
         return payout;
+    }
+
+    public int getWinningBetCode() {
+        return winningBetCode;
     }
 
     public Instant getGameStartTime() {
@@ -107,6 +112,10 @@ public class BingoGame {
 
     public void setNumberLeftInColumn(List<Integer> numberLeftInColumn) {
         this.numberLeftInColumn = numberLeftInColumn;
+    }
+
+    public void setWinningBetCode(int winningBetCode) {
+        this.winningBetCode = winningBetCode;
     }
 
     public void setNumberLeftInRow(List<Integer> numberLeftInRow) {

@@ -33,7 +33,10 @@ public class UserService {
 
 
     public int findBetCode(String gameId){
-       return bingoDB.findUserIdBetAmountBetCodeByGameId(gameId).getBetCode();
+       System.out.println("Entering the finding betcode function..");
+       BetDetails betDetails = bingoDB.findUserIdBetAmountBetCodeByGameId(gameId);
+       System.out.println("got the betcode");
+       return betDetails.getBetCode();
     }
 
     public int findBetAmount(String gameId){
@@ -49,7 +52,8 @@ public class UserService {
         }
     }
 
-    public void checkNumberInTicket(int randomNumber, List<Integer> ticket) {
+    public void checkNumberInTicket(int randomNumber, List<Integer> ticket, String gameId) {
+        bingoGame.setGameId(gameId);
         if (randomNumber <= 10) {
             for (int i = 0; i <= 2; i++) {
                 if (ticket.get(i) == randomNumber) {
@@ -96,12 +100,23 @@ public class UserService {
                     }
 
                     if (columnCount - 1 == 0 || rowCount - 1 == 0) {
-                        bingoGame.setGameStatus(false);
-                        if(checkIfUserWins(findBetCode(bingoGame.getGameId()),bingoGame.getTicket()))
+                        if(columnCount-1 ==0){
+                            bingoGame.setWinningBetCode(2104);
+                        }
+                        else{
+                            bingoGame.setWinningBetCode(2101+i);
+                        }
+                        System.out.println(bingoGame.getWinningBetCode());
+                        System.out.println(bingoGame.getGameId());
+                        System.out.println(findBetCode(bingoGame.getGameId()));
+
+                        System.out.println(checkIfUserWins(findBetCode(bingoGame.getGameId()),bingoGame.getWinningBetCode()));
+                        if(checkIfUserWins(findBetCode(bingoGame.getGameId()),bingoGame.getWinningBetCode()))
                         {
                             bingoGame.setPayout(calculatePayout(findBetCode(bingoGame.getGameId()), findBetAmount(bingoGame.getGameId())));
                             System.out.println("Payout: "+bingoGame.getPayout());
                         }
+                        bingoGame.setGameStatus(false);
                     }
                     break;
                 }
@@ -153,12 +168,22 @@ public class UserService {
                     }
 
                     if (columnCount - 1 == 0 || rowCount - 1 == 0) {
-                        bingoGame.setGameStatus(false);
-                        if(checkIfUserWins(findBetCode(bingoGame.getGameId()),bingoGame.getTicket()))
+                        if(columnCount-1 ==0){
+                            bingoGame.setWinningBetCode(2105);
+                        }
+                        else{
+                            bingoGame.setWinningBetCode(2101+i-3);
+                        }
+                        System.out.println(bingoGame.getWinningBetCode());
+                        System.out.println(bingoGame.getGameId());
+                        System.out.println(findBetCode(bingoGame.getGameId()));
+                        System.out.println(checkIfUserWins(findBetCode(bingoGame.getGameId()),bingoGame.getWinningBetCode()));
+                        if(checkIfUserWins(findBetCode(bingoGame.getGameId()),bingoGame.getWinningBetCode()))
                         {
                             bingoGame.setPayout(calculatePayout(findBetCode(bingoGame.getGameId()), findBetAmount(bingoGame.getGameId())));
                             System.out.println("Payout: "+bingoGame.getPayout());
                         }
+                        bingoGame.setGameStatus(false);
                     }
                     break;
                 }
@@ -211,12 +236,22 @@ public class UserService {
                     }
 
                     if (columnCount - 1 == 0 || rowCount - 1 == 0) {
-                        bingoGame.setGameStatus(false);
-                        if(checkIfUserWins(findBetCode(bingoGame.getGameId()),bingoGame.getTicket()))
+                        if(columnCount-1 ==0){
+                            bingoGame.setWinningBetCode(2106);
+                        }
+                        else{
+                            bingoGame.setWinningBetCode(2101+i-6);
+                        }
+                        System.out.println(bingoGame.getWinningBetCode());
+                        System.out.println(bingoGame.getGameId());
+                        System.out.println(findBetCode(bingoGame.getGameId()));
+                        System.out.println(checkIfUserWins(findBetCode(bingoGame.getGameId()),bingoGame.getWinningBetCode()));
+                        if(checkIfUserWins(findBetCode(bingoGame.getGameId()),bingoGame.getWinningBetCode()))
                         {
                             bingoGame.setPayout(calculatePayout(findBetCode(bingoGame.getGameId()), findBetAmount(bingoGame.getGameId())));
                             System.out.println("Payout: "+bingoGame.getPayout());
                         }
+                        bingoGame.setGameStatus(false);
                     }
                     break;
                 }
@@ -238,34 +273,11 @@ public class UserService {
         return 0;
     }
 
-    public boolean checkIfUserWins(int betCode, List<Integer> ticket) {
-        //check for winning row/ column betcode
-        // check for the betPlaced betcode is same as the winning betCode
-        boolean hasWon = false;
-        if (betCode>=2101 && betCode<=2103) {
-            int row = betCode-2101;
-            int countMarked = 0;
-            for (int i = row * 3; i < (row + 1) * 3; i++) {
-                if (ticket.get(i) == -1) {
-                    countMarked++;
-                }
-            }
-            if (countMarked == 3) {
-                hasWon = true;
-            }
-        } else if (betCode>=2104 && betCode<=2106) {
-            int column = betCode-2104;
-            int countMarked = 0;
-            for (int i = column; i < 9; i += 3) {
-                if (ticket.get(i) == -1) {
-                    countMarked++;
-                }
-            }
-            if (countMarked == 3) {
-                hasWon = true;
-            }
+    public boolean checkIfUserWins(int betCode, int winningBetCode) {
+        if(betCode == winningBetCode){
+            return true;
         }
-        return hasWon;
+        return false;
     }
 
     public Set<Integer> numberLeft(){

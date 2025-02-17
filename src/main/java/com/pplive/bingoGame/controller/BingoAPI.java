@@ -61,7 +61,7 @@ public class BingoAPI{
 
     @PostMapping("/bingo/result")
     public ResponseEntity<ResultResponse> result(@RequestBody ResultRequest resultRequest){
-        userService.checkNumberInTicket(resultRequest.getRandomNumber(), bingoGame.getTicket());
+        userService.checkNumberInTicket(resultRequest.getRandomNumber(), bingoGame.getTicket(), bingoGame.getGameId());
         ResultResponse response = new ResultResponse();
         bingoGame.getNumberSequence().add(resultRequest.getRandomNumber());
         response.setNumberSequence(bingoGame.getNumberSequence());
@@ -79,6 +79,7 @@ public class BingoAPI{
     System.out.println(bingoGameService.compareGameId(gameId, bingoGame.getGameId(), bingoGame.getGameStatus()));
         if(bingoGameService.compareGameId(gameId, bingoGame.getGameId(), bingoGame.getGameStatus())){
             BetDetails betDetails = bingoDB.findUserIdBetAmountBetCodeByGameId(gameId);
+            bingoGame.setGameStatus(false);
             int balance = bingoDB.findBalanceByUserId(betDetails.getUserId());
             System.out.println(balance);
             bingoDB.updateBalanceInDB((balance+betDetails.getBetAmount()), betDetails.getUserId());

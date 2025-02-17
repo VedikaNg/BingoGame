@@ -1,7 +1,6 @@
 package com.pplive.bingoGame.service;
 
 import com.pplive.bingoGame.dto.BingoGame;
-import com.pplive.bingoGame.repository.BingoDB;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -86,5 +85,6 @@ public class BingoGameService {
             return false;
         }
     }
+
 
 }
