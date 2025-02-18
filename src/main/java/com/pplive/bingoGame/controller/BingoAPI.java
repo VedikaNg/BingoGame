@@ -84,15 +84,20 @@ public class BingoAPI{
                 bingoDB.insertIntoTransactionTable(betDetails.getUserId(),
                         bingoGame.getGameId(),"PAYOUT", bingoGame.getPayout(),
                         LocalDateTime.now() ,"SUCCESS");
+                PayoutDetails payoutDetails = new PayoutDetails();
+                payoutDetails.setPayout(bingoGame.getPayout());
+                payoutDetails.setGameId(bingoGame.getGameId());
+                return new ResponseEntity<>(payoutDetails, HttpStatus.ACCEPTED);
             }
-            ResultResponse response = new ResultResponse();
-            response.setPayout(bingoGame.getPayout());
-            bingoGame.getNumberSequence().add(resultRequest.getRandomNumber());
-            response.setNumberSequence(bingoGame.getNumberSequence());
-            response.setGameId(resultRequest.getGameId());
-            System.out.println(bingoGame.getNumberLeftToWin());
-            response.setNumberLeftToWin(bingoGame.getNumberLeftToWin());
-            return new ResponseEntity<>(response, HttpStatus.ACCEPTED);
+            else{
+                ResultResponse response = new ResultResponse();
+                bingoGame.getNumberSequence().add(resultRequest.getRandomNumber());
+                response.setNumberSequence(bingoGame.getNumberSequence());
+                response.setGameId(resultRequest.getGameId());
+                System.out.println(bingoGame.getNumberLeftToWin());
+                response.setNumberLeftToWin(bingoGame.getNumberLeftToWin());
+                return new ResponseEntity<>(response, HttpStatus.ACCEPTED);
+            }
         }
         return new ResponseEntity<>(new SendMessage(Constants.INVALID_GAME), HttpStatus.BAD_REQUEST);
 

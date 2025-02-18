@@ -11,14 +11,9 @@ public class ResultResponse {
     private String gameId;
     private Set<Integer> numberLeftToWin;
     private List<Integer> numberSequence;
-    private int payout;
 
     public String getGameId() {
         return gameId;
-    }
-
-    public int getPayout() {
-        return payout;
     }
 
     public Set<Integer> getNumberLeftToWin() {
@@ -41,7 +36,4 @@ public class ResultResponse {
         this.numberSequence=sequence;
     }
 
-    public void setPayout(int payout) {
-        this.payout = payout;
-    }
 }

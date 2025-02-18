@@ -30,30 +30,44 @@ public class BingoGameService {
         return gameId;
     }
 
-    public List<Integer> generateTicket(){
+    public List<Integer> generateTicket() {
         Random random = new Random();
         List<Integer> ticket = new ArrayList<>();
-        Set<Integer> uniqueNumber = new HashSet<>();
-        while (uniqueNumber.size()<3){
-            int num = random.nextInt(10)+1;
-            uniqueNumber.add(num);
+        for (int i = 0; i < 3; i++) {
+            Set<Integer> uniqueNumbers = new HashSet<>();
+            while (uniqueNumbers.size() < 3) {
+                uniqueNumbers.add(random.nextInt(10) + (i * 10) + 1);
+            }
+            ticket.addAll(uniqueNumbers);
         }
-        ticket.addAll(uniqueNumber);
-        uniqueNumber.clear();
-        while (uniqueNumber.size()<3){
-            int num = random.nextInt(10)+11;
-            uniqueNumber.add(num);
-        }
-        ticket.addAll(uniqueNumber);
-        uniqueNumber.clear();
-        while (uniqueNumber.size()<3){
-            int num = random.nextInt(10)+21;
-            uniqueNumber.add(num);
-        }
-        ticket.addAll(uniqueNumber);
-        uniqueNumber.clear();
         return ticket;
     }
+
+
+//    public List<Integer> generateTicket(){
+//        Random random = new Random();
+//        List<Integer> ticket = new ArrayList<>();
+//        Set<Integer> uniqueNumber = new HashSet<>();
+//        while (uniqueNumber.size()<3){
+//            int num = random.nextInt(10)+1;
+//            uniqueNumber.add(num);
+//        }
+//        ticket.addAll(uniqueNumber);
+//        uniqueNumber.clear();
+//        while (uniqueNumber.size()<3){
+//            int num = random.nextInt(10)+11;
+//            uniqueNumber.add(num);
+//        }
+//        ticket.addAll(uniqueNumber);
+//        uniqueNumber.clear();
+//        while (uniqueNumber.size()<3){
+//            int num = random.nextInt(10)+21;
+//            uniqueNumber.add(num);
+//        }
+//        ticket.addAll(uniqueNumber);
+//        uniqueNumber.clear();
+//        return ticket;
+//    }
 
     public BingoGame createBingoGame(){
         bingoGame = new BingoGame();

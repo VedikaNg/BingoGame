@@ -263,10 +263,7 @@ public class UserService {
     }
 
     public boolean checkIfUserWins(int betCode, int winningBetCode) {
-        if(betCode == winningBetCode){
-            return true;
-        }
-        return false;
+        return betCode == winningBetCode;
     }
 
 
