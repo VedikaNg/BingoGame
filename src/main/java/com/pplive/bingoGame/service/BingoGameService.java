@@ -71,9 +71,7 @@ public class BingoGameService {
     }
 
     public String generateBetId(int userId, String betCode){
-        System.out.println(LocalDateTime.now());
         String betId = userId+betCode+LocalDateTime.now();
-        System.out.println(betId);
         return betId;
     }
 

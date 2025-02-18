@@ -1,5 +1,6 @@
 package com.pplive.bingoGame.controller;
 
+import com.pplive.bingoGame.constant.Constants;
 import com.pplive.bingoGame.dto.*;
 import com.pplive.bingoGame.repository.BingoDB;
 import com.pplive.bingoGame.service.BingoGameService;
@@ -29,19 +30,19 @@ public class BingoAPI{
 
 
     @PostMapping("/game")
-    public ResponseEntity<BingoGame> createGame(){
+    public ResponseEntity<?> createGame(){
         System.out.println(bingoGame.getGameStatus());
         if(!bingoGame.getGameStatus()){
             bingoGame = bingoGameService.createBingoGame();
             return new ResponseEntity<>(bingoGame, HttpStatus.CREATED);
         }
         else{
-            return new ResponseEntity<>(HttpStatus.NOT_ACCEPTABLE);
+            return new ResponseEntity<>(new SendMessage(Constants.INVALIDE_GAME_CREATION),HttpStatus.NOT_ACCEPTABLE);
         }
     }
 
     @PostMapping("/bet")
-    public ResponseEntity<BetResponse> placeBet(@RequestBody BetRequest requestBody) {
+    public ResponseEntity<?> placeBet(@RequestBody BetRequest requestBody) {
         BetResponse response = new BetResponse() ;
         if(!userService.isBetAlreadyPlaced(requestBody.getUserId(), requestBody.getGameId()) &&
                 bingoGame.getBetsOpen(Instant.now()) &&
@@ -57,42 +58,48 @@ public class BingoAPI{
                 return new ResponseEntity<>(response, HttpStatus.ACCEPTED);
             }
             else{
-                return new ResponseEntity<>(HttpStatus.BAD_REQUEST) ;
+                bingoDB.insertIntoTransactionTable(requestBody.getUserId(), requestBody.getGameId(),
+                        "BET", requestBody.getBetAmount(), LocalDateTime.now(),"FAILED");
+                return new ResponseEntity<>(new SendMessage(Constants.INSUFFICIENT_BALANCE),HttpStatus.BAD_REQUEST) ;
             }
         }
         else{
-            return new ResponseEntity<>(HttpStatus.GATEWAY_TIMEOUT);
+            bingoDB.insertIntoTransactionTable(requestBody.getUserId(), requestBody.getGameId(),
+                    "BET", requestBody.getBetAmount(), LocalDateTime.now(),"FAILED");
+            return new ResponseEntity<>(new SendMessage(Constants.BET_ALREADY_PLACED),HttpStatus.GATEWAY_TIMEOUT);
         }
     }
 
     @PostMapping("/bingo/result")
-    public ResponseEntity<ResultResponse> result(@RequestBody ResultRequest resultRequest){
-        ResultResponse response = new ResultResponse();
-        Boolean gameEnds = userService.checkNumberInTicket(resultRequest.getRandomNumber(),
-                bingoGame.getTicket(), bingoGame);
-        if(gameEnds){
-            bingoGame.setGameStatus(false);
+    public ResponseEntity<?> result(@RequestBody ResultRequest resultRequest){
+        if(resultRequest.getGameId().equalsIgnoreCase(bingoGame.getGameId()) && bingoGame.getGameStatus()){
+            Boolean gameEnds = userService.checkNumberInTicket(resultRequest.getRandomNumber(),
+                    bingoGame.getTicket(), bingoGame);
+            if(gameEnds){
+                bingoGame.setGameStatus(false);
 
-            BetDetails betDetails = bingoDB.findUserIdBetAmountBetCodeByGameId(resultRequest.getGameId());
-            bingoDB.updateBalanceInDB(bingoDB.findBalanceByUserId(
-                    betDetails.getUserId())+bingoGame.getPayout(), betDetails.getUserId());
-            bingoDB.insertIntoTransactionTable(betDetails.getUserId(),
-                    bingoGame.getGameId(),"PAYOUT", betDetails.getBetAmount(),
-                    LocalDateTime.now() ,"SUCCESS");
+                BetDetails betDetails = bingoDB.findUserIdBetAmountBetCodeByGameId(resultRequest.getGameId());
+                bingoDB.updateBalanceInDB(bingoDB.findBalanceByUserId(
+                        betDetails.getUserId())+bingoGame.getPayout(), betDetails.getUserId());
+                bingoDB.insertIntoTransactionTable(betDetails.getUserId(),
+                        bingoGame.getGameId(),"PAYOUT", bingoGame.getPayout(),
+                        LocalDateTime.now() ,"SUCCESS");
+            }
+            ResultResponse response = new ResultResponse();
+            response.setPayout(bingoGame.getPayout());
+            bingoGame.getNumberSequence().add(resultRequest.getRandomNumber());
+            response.setNumberSequence(bingoGame.getNumberSequence());
+            response.setGameId(resultRequest.getGameId());
+            System.out.println(bingoGame.getNumberLeftToWin());
+            response.setNumberLeftToWin(bingoGame.getNumberLeftToWin());
+            return new ResponseEntity<>(response, HttpStatus.ACCEPTED);
         }
-        response.setPayout(bingoGame.getPayout());
-        bingoGame.getNumberSequence().add(resultRequest.getRandomNumber());
-        response.setNumberSequence(bingoGame.getNumberSequence());
-        response.setGameId(resultRequest.getGameId());
-        System.out.println(bingoGame.getNumberLeftToWin());
-        response.setNumberLeftToWin(bingoGame.getNumberLeftToWin());
+        return new ResponseEntity<>(new SendMessage(Constants.INVALID_GAME), HttpStatus.BAD_REQUEST);
 
-
-        return new ResponseEntity<>(response, HttpStatus.ACCEPTED);
     }
 
     @PostMapping("/cancelGame/{gameId}")
-    public void cancelGame(@PathVariable String gameId){
+    public ResponseEntity<?> cancelGame(@PathVariable String gameId){
     System.out.println(bingoGameService.compareGameId(gameId, bingoGame.getGameId(), bingoGame.getGameStatus()));
         if(bingoGameService.compareGameId(gameId, bingoGame.getGameId(), bingoGame.getGameStatus())){
             BetDetails betDetails = bingoDB.findUserIdBetAmountBetCodeByGameId(gameId);
@@ -102,7 +109,9 @@ public class BingoAPI{
             bingoDB.updateBalanceInDB((balance+betDetails.getBetAmount()), betDetails.getUserId());
             bingoDB.insertIntoTransactionTable(betDetails.getUserId(), gameId,
                     "REFUND", betDetails.getBetAmount(), LocalDateTime.now() ,"SUCCESS");
+            return new ResponseEntity<>(new SendMessage(Constants.GAME_CANCEL), HttpStatus.ACCEPTED);
         }
+        return new ResponseEntity<>(new SendMessage(Constants.INVALID_GAME),HttpStatus.BAD_REQUEST);
     }
 
 }

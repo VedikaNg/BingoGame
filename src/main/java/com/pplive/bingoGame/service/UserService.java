@@ -36,9 +36,7 @@ public class UserService {
 
 
     public int findBetCode(String gameId){
-       System.out.println("Entering the finding betcode function..");
        BetDetails betDetails = bingoDB.findUserIdBetAmountBetCodeByGameId(gameId);
-       System.out.println("got the betcode");
        return betDetails.getBetCode();
     }
 
@@ -109,9 +107,6 @@ public class UserService {
                         else{
                             bingoGame.setWinningBetCode(2101+i);
                         }
-                        System.out.println(bingoGame.getWinningBetCode());
-                        System.out.println(bingoGame.getGameId());
-                        System.out.println(findBetCode(bingoGame.getGameId()));
 
                         System.out.println(checkIfUserWins(findBetCode(bingoGame.getGameId()),bingoGame.getWinningBetCode()));
                         if(checkIfUserWins(findBetCode(bingoGame.getGameId()),bingoGame.getWinningBetCode()))
@@ -177,14 +172,9 @@ public class UserService {
                         else{
                             bingoGame.setWinningBetCode(2101+i-3);
                         }
-                        System.out.println(bingoGame.getWinningBetCode());
-                        System.out.println(bingoGame.getGameId());
-                        System.out.println(findBetCode(bingoGame.getGameId()));
-                        System.out.println(checkIfUserWins(findBetCode(bingoGame.getGameId()),bingoGame.getWinningBetCode()));
                         if(checkIfUserWins(findBetCode(bingoGame.getGameId()),bingoGame.getWinningBetCode()))
                         {
                             bingoGame.setPayout(calculatePayout(findBetCode(bingoGame.getGameId()), findBetAmount(bingoGame.getGameId())));
-                            System.out.println("Payout: "+bingoGame.getPayout());
                         }
                         return true;
                     }
@@ -245,14 +235,9 @@ public class UserService {
                         else{
                             bingoGame.setWinningBetCode(2101+i-6);
                         }
-                        System.out.println(bingoGame.getWinningBetCode());
-                        System.out.println(bingoGame.getGameId());
-                        System.out.println(findBetCode(bingoGame.getGameId()));
-                        System.out.println(checkIfUserWins(findBetCode(bingoGame.getGameId()),bingoGame.getWinningBetCode()));
                         if(checkIfUserWins(findBetCode(bingoGame.getGameId()),bingoGame.getWinningBetCode()))
                         {
                             bingoGame.setPayout(calculatePayout(findBetCode(bingoGame.getGameId()), findBetAmount(bingoGame.getGameId())));
-                            System.out.println("Payout: "+bingoGame.getPayout());
                         }
                         return true;
                     }
@@ -283,6 +268,8 @@ public class UserService {
         }
         return false;
     }
+
+
 
 
 }
