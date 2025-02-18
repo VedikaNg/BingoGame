@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.time.Instant;
+import java.time.LocalDateTime;
 
 @RestController
 public class BingoAPI{
@@ -42,9 +43,14 @@ public class BingoAPI{
     @PostMapping("/bet")
     public ResponseEntity<BetResponse> placeBet(@RequestBody BetRequest requestBody) {
         BetResponse response = new BetResponse() ;
-        if(!userService.isBetAlreadyPlaced(requestBody.getUserId(), requestBody.getGameId()) && bingoGame.getBetsOpen(Instant.now()) && (bingoGame.getGameId().equalsIgnoreCase(requestBody.getGameId()))){
-            if(userService.checkBalance(requestBody.getBetAmount(),requestBody.getUserId(),requestBody.getBetCode(), requestBody.getGameId())){
+        if(!userService.isBetAlreadyPlaced(requestBody.getUserId(), requestBody.getGameId()) &&
+                bingoGame.getBetsOpen(Instant.now()) &&
+                (bingoGame.getGameId().equalsIgnoreCase(requestBody.getGameId()))){
+            if(userService.checkBalance(requestBody.getBetAmount(),requestBody.getUserId(),
+                    requestBody.getBetCode(), requestBody.getGameId())){
                 response.setBetValid(true);
+                bingoDB.insertIntoTransactionTable(requestBody.getUserId(), requestBody.getGameId(),
+                        "BET", requestBody.getBetAmount(), LocalDateTime.now() ,"SUCCESS");
                 response.setBetId(bingoGameService.generateBetId(requestBody.getUserId(),requestBody.getBetCode()));
                 response.setGameId(requestBody.getGameId());
                 response.setUserId(requestBody.getUserId());
@@ -61,19 +67,27 @@ public class BingoAPI{
 
     @PostMapping("/bingo/result")
     public ResponseEntity<ResultResponse> result(@RequestBody ResultRequest resultRequest){
-        Boolean gameEnds = userService.checkNumberInTicket(resultRequest.getRandomNumber(), bingoGame.getTicket(), bingoGame);
+        ResultResponse response = new ResultResponse();
+        Boolean gameEnds = userService.checkNumberInTicket(resultRequest.getRandomNumber(),
+                bingoGame.getTicket(), bingoGame);
         if(gameEnds){
             bingoGame.setGameStatus(false);
+
+            BetDetails betDetails = bingoDB.findUserIdBetAmountBetCodeByGameId(resultRequest.getGameId());
+            bingoDB.updateBalanceInDB(bingoDB.findBalanceByUserId(
+                    betDetails.getUserId())+bingoGame.getPayout(), betDetails.getUserId());
+            bingoDB.insertIntoTransactionTable(betDetails.getUserId(),
+                    bingoGame.getGameId(),"PAYOUT", betDetails.getBetAmount(),
+                    LocalDateTime.now() ,"SUCCESS");
         }
-        ResultResponse response = new ResultResponse();
+        response.setPayout(bingoGame.getPayout());
         bingoGame.getNumberSequence().add(resultRequest.getRandomNumber());
         response.setNumberSequence(bingoGame.getNumberSequence());
         response.setGameId(resultRequest.getGameId());
-        System.out.println("After calculation");
-        System.out.println("Before setting");
         System.out.println(bingoGame.getNumberLeftToWin());
         response.setNumberLeftToWin(bingoGame.getNumberLeftToWin());
-        response.setPayout(bingoGame.getPayout());
+
+
         return new ResponseEntity<>(response, HttpStatus.ACCEPTED);
     }
 
@@ -86,6 +100,8 @@ public class BingoAPI{
             int balance = bingoDB.findBalanceByUserId(betDetails.getUserId());
             System.out.println(balance);
             bingoDB.updateBalanceInDB((balance+betDetails.getBetAmount()), betDetails.getUserId());
+            bingoDB.insertIntoTransactionTable(betDetails.getUserId(), gameId,
+                    "REFUND", betDetails.getBetAmount(), LocalDateTime.now() ,"SUCCESS");
         }
     }
 
